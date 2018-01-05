@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>jquery文件分段上传插件-fcup</title>
+  <!-- 引入css -->
+  <link href="./fcup/css/style.css" rel="stylesheet" />
+</head>
+<body>
+<div class="fcup"></div>
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<!--  引入js  -->
+<script src="./fcup/js/jquery.fcup.min.js"></script>
+
+<script>
+$.fcup({
+	updom: '.fcup',//上传控件的位置dom
+	shardsize : '0.5',//切片大小,(单次上传最大值)单位M，默认2M
+	upstr: '上传文件',//按钮文字
+	uploading: '上传中...',//上传中的提示文字
+	upfinished: '上传完成',//上传完成后的提示文字
+	upurl: './file.php',//文件上传接口
+	uptype: 'jpg,png,gif,jpeg',//上传类型检测,用,号分割
+	errtype: '不支持此类型文件',//不支持类型的提示文字
+});
+</script>
+</body>
+</html>

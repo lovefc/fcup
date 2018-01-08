@@ -4,11 +4,11 @@
  * time:2018/01/05 23:05
  */
 (function (jQuery) {
-	$.fn.fcupInitialize = function () {
+	jQuery.fn.fcupInitialize = function () {
 
 		return this.each(function () {
 
-			var button = $(this),
+			var button = jQuery(this),
 			fcup = 0;
 			if (!jQuery.uploading) {
 				jQuery.uploading = '上传中...';
@@ -16,7 +16,7 @@
 			if (!jQuery.upfinished) {
 				jQuery.upfinished = '上传完成';
 			}
-			var options = $.extend({
+			var options = jQuery.extend({
 					loading: jQuery.uploading,
 					finished: jQuery.upfinished
 				}, button.data());
@@ -25,7 +25,7 @@
 				'data-loading': options.loading,
 				'data-finished': options.finished
 			});
-			var bar = $('<span class="tz-bar background-horizontal">').appendTo(button);
+			var bar = jQuery('<span class="tz-bar background-horizontal">').appendTo(button);
 			button.on('fcup', function (e, val, absolute, finish) {
 
 				if (!button.hasClass('in-fcup')) {
@@ -68,7 +68,7 @@
 
 	};
 
-	$.fn.fcupStart = function () {
+	jQuery.fn.fcupStart = function () {
 
 		var button = this.first(),
 		last_fcup = new Date().getTime();
@@ -97,11 +97,11 @@
 		return button.fcupIncrement(10);
 	};
 
-	$.fn.fcupFinish = function () {
+	jQuery.fn.fcupFinish = function () {
 		return this.first().fcupSet(100);
 	};
 
-	$.fn.fcupIncrement = function (val) {
+	jQuery.fn.fcupIncrement = function (val) {
 
 		val = val || 10;
 
@@ -112,7 +112,7 @@
 		return this;
 	};
 
-	$.fn.fcupSet = function (val) {
+	jQuery.fn.fcupSet = function (val) {
 		val = val || 10;
 
 		var finish = false;
@@ -129,8 +129,11 @@ var big_upload = {
 
 	fcup: function (config) {
 		jQuery.extend(config);
-		if (jQuery.upstr) {
+		if (!jQuery.upstr) {
 			jQuery.upstr = '上传文件';
+		}
+		if(!jQuery.upid){
+			jQuery.upid = 'ad47494fc02c388e';
 		}
 		if (jQuery.updom && jQuery.upurl) {
 			jQuery.fcup_add();
@@ -140,7 +143,7 @@ var big_upload = {
 	fcup_add: function () {
 		var html = '<div class="fcup-button">';
 		html += jQuery.upstr;
-		html += '<input type="file" id="ad47494fc02c388e" onchange="$.big_upload()" style="position:absolute;font-size:100px;right:0;top:0;opacity:0;">';
+		html += '<input type="file" id="'+ jQuery.upid +'" onchange="jQuery.big_upload()" style="position:absolute;font-size:100px;right:0;top:0;opacity:0;">';
 		html += '</div>';
 		jQuery(jQuery.updom).html(html);
 	},
@@ -155,10 +158,10 @@ var big_upload = {
 
 	big_upload: function () {
 		jQuery('.fcup-button').fcupInitialize();
-		var controlButton = $('.fcup-button');
+		var controlButton = jQuery('.fcup-button');
 		var width = controlButton.outerWidth(true);
 		var result = '';
-		var file = jQuery("#ad47494fc02c388e")[0].files[0],
+		var file = jQuery('#'+jQuery.upid)[0].files[0],
 
 		name = file.name,
 
@@ -196,29 +199,31 @@ var big_upload = {
 
 			end = Math.min(size, start + shardSize);
 
-			//构造表单
-
 			var form = new FormData();
 
-			form.append("data", file.slice(start, end)); //slice方法用于切出文件的一部分
+			form.append("file_data", file.slice(start, end));
 
-			form.append("name", name);
+			form.append("file_name", name);
 
-			form.append("total", shardCount); //总片数
+			form.append("file_total", shardCount);
 
-			form.append("index", i + 1); //当前是第几片
-
-			//Ajax提交
+			form.append("file_index", i + 1);
+			
 			jQuery.ajax({
 				url: jQuery.upurl,
 				type: "POST",
 				data: form,
 				async: true,
-				processData: false, //告诉jquery不要对form进行处理
-				contentType: false, //指定为false才能形成正确的Content-Type
-				success: function () {
+				processData: false,
+				contentType: false,
+				success: function (result) {
+					if(typeof jQuery.upcallback == 'function'){
+					    jQuery.upcallback(result);
+					}else{
+						console.log(result);
+					}
 					++succeed;
-					var cent = $.fc_GetPercent(succeed, shardCount);
+					var cent = jQuery.fc_GetPercent(succeed, shardCount);
 					console.log(cent + '%');
 					controlButton.fcupSet(cent);
 				}

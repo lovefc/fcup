@@ -23,7 +23,7 @@ $.fcup({
      
     upfinished: '上传完成',//上传完成后的提示文字
      
-    upurl: './file.php',//文件上传接口
+	upurl: './php/file.php',//文件上传接口 node接口:http://127.0.0.1:8888/upload
      
     //uptype: 'jpg,png,gif,jpeg',//上传类型检测,用,号分割
      

@@ -5,11 +5,18 @@
  * author:lovefc
  */
 
+ 
+/* 设置跨域头
+header('Access-Control-Allow-Origin:*');
+header('Access-Control-Allow-Methods:PUT,POST,GET,DELETE,OPTIONS');
+header('Access-Control-Allow-Headers:x-requested-with,content-type');	
+*/
+
 header("Content-type: text/html; charset=utf-8");
 
 $file = isset($_FILES['file_data']) ? $_FILES['file_data']:null; //分段的文件
 
-$name = isset($_POST['file_name']) ? './upload/'.$_POST['file_name']:null; //要保存的文件名
+$name = isset($_POST['file_name']) ? '../upload/'.$_POST['file_name']:null; //要保存的文件名
 
 $total = isset($_POST['file_total']) ? $_POST['file_total']:0; //总片数
 

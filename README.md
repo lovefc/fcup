@@ -5,7 +5,7 @@ fcup是一款支持大文件切片上传插件。该jquery插件使用简单，�
 ![pic](http://fcphp.cn/fcup/jt.png)
 
 ### 安装
-直接下载源码,上传功能需要php环境，演示地址: http://fcphp.cn/fcup
+直接下载源码,上传功能需要php环境，演示地址: http://fcphp.cn/fcup github：https://github.com/lovefc/fcup
 
 ### 使用方法
 ````
@@ -38,3 +38,4 @@ $.fcup({
 ````
 ### 更新日志
 #### 2018/1/8  ： 添加了对于接口返回结果的回调，添加了对于上传表单id的指定
+#### 2018/1/10 :  添加了node.js的上传接口，基于express框架

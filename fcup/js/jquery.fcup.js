@@ -2,6 +2,7 @@
  * 文件分段上传jquery插件
  * author:lovefc
  * time:2018/01/05 23:05
+ * uptime:2018/01/17 23:05
  */
 (function (jQuery) {
 	jQuery.fn.fcupInitialize = function () {
@@ -69,18 +70,14 @@
 	};
 
 	jQuery.fn.fcupStart = function () {
-
 		var button = this.first(),
 		last_fcup = new Date().getTime();
-
 		if (button.hasClass('in-fcup')) {
 			return this;
 		}
-
 		button.on('fcup', function () {
 			last_fcup = new Date().getTime();
 		});
-
 		var interval = window.setInterval(function () {
 
 				if (new Date().getTime() > 2000 + last_fcup) {
@@ -132,7 +129,7 @@ var big_upload = {
 		if (!jQuery.upstr) {
 			jQuery.upstr = '上传文件';
 		}
-		if(!jQuery.upid){
+		if (!jQuery.upid) {
 			jQuery.upid = 'ad47494fc02c388e';
 		}
 		if (jQuery.updom && jQuery.upurl) {
@@ -143,7 +140,7 @@ var big_upload = {
 	fcup_add: function () {
 		var html = '<div class="fcup-button">';
 		html += jQuery.upstr;
-		html += '<input type="file" id="'+ jQuery.upid +'" onchange="jQuery.big_upload()" style="position:absolute;font-size:100px;right:0;top:0;opacity:0;">';
+		html += '<input type="file" id="' + jQuery.upid + '" onchange="jQuery.big_upload()" style="position:absolute;font-size:100px;right:0;top:0;opacity:0;">';
 		html += '</div>';
 		jQuery(jQuery.updom).html(html);
 	},
@@ -161,7 +158,7 @@ var big_upload = {
 		var controlButton = jQuery('.fcup-button');
 		var width = controlButton.outerWidth(true);
 		var result = '';
-		var file = jQuery('#'+jQuery.upid)[0].files[0],
+		var file = jQuery('#' + jQuery.upid)[0].files[0],
 
 		name = file.name,
 
@@ -192,45 +189,65 @@ var big_upload = {
 				return false;
 			}
 		}
-
+		var re = [];
+		var start,
+		end = null;
 		for (var i = 0; i < shardCount; ++i) {
-
-			var start = i * shardSize,
+			re[i] = [];
+			start = i * shardSize,
 
 			end = Math.min(size, start + shardSize);
 
-			var form = new FormData();
+			re[i]["file_data"] = file.slice(start, end);
 
-			form.append("file_data", file.slice(start, end));
+			re[i]["file_name"] = name;
 
-			form.append("file_name", name);
+			re[i]["file_total"] = shardCount;
 
-			form.append("file_total", shardCount);
-
-			form.append("file_index", i + 1);
-			
-			jQuery.ajax({
-				url: jQuery.upurl,
-				type: "POST",
-				data: form,
-				async: true,
-				processData: false,
-				contentType: false,
-				success: function (result) {
-					if(typeof jQuery.upcallback == 'function'){
-					    jQuery.upcallback(result);
-					}else{
-						console.log(result);
-					}
-					++succeed;
-					var cent = jQuery.fc_GetPercent(succeed, shardCount);
-					console.log(cent + '%');
-					controlButton.fcupSet(cent);
-				}
-			});
-
+			re[i]["file_index"] = i + 1;
 		}
 
+		const URL = jQuery.upurl;
+
+		var i = 0;
+		var xhr = new XMLHttpRequest();
+
+		function ajaxStack(stack) {
+			if (stack.hasOwnProperty(i)) {
+				let fcs = stack[i];
+				var form = new FormData();
+				form.append("file_data", fcs['file_data']);
+				form.append("file_name", fcs['file_name']);
+				form.append("file_total", fcs['file_total']);
+				form.append("file_index", fcs['file_index']);
+				xhr.open('POST', URL, true);
+				xhr.onload = function () {
+					ajaxStack(stack)
+				}
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState == 4 && xhr.status == 200) {
+						if (typeof jQuery.upcallback == 'function') {
+							jQuery.upcallback(xhr.responseText);
+						} else {
+							console.log(xhr.responseText);
+						}
+						++succeed;
+						var cent = jQuery.fc_GetPercent(succeed, shardCount);
+						console.log(cent + '%');
+						controlButton.fcupSet(cent);
+					}
+				}
+				xhr.send(form);
+				i++;
+				/*
+				form.delete ('file_data');
+				form.delete ('file_name');
+				form.delete ('file_total');
+				form.delete ('file_index');
+				*/
+			}
+		}
+		ajaxStack(re);
 	}
 
 };

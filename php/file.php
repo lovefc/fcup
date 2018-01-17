@@ -22,6 +22,8 @@ $total = isset($_POST['file_total']) ? $_POST['file_total']:0; //总片数
 
 $index = isset($_POST['file_index']) ? $_POST['file_index']:0; //当前片数
 
+echo '当前片数：'.$index.PHP_EOL;
+
 if(!$file || !$name){
 	echo 'failed';
 	die();

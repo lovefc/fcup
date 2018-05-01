@@ -39,6 +39,10 @@ app.post('/upload', multipartMiddleware, function (req, res, next) {
 	var file_total = req.body.file_total; //总片数
 
 	var file_index = req.body.file_index; //总片数
+	
+	var file_md5 = req.body.file_md5; //文件md5
+	
+	var file_size = req.body.file_size; //文件大小	
 
 	var dstPath = '../upload/' + file_name; //新文件地址
 

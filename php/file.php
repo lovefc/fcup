@@ -22,6 +22,10 @@ $total = isset($_POST['file_total']) ? $_POST['file_total']:0; //总片数
 
 $index = isset($_POST['file_index']) ? $_POST['file_index']:0; //当前片数
 
+$md5   = isset($_POST['file_md5']) ? $_POST['file_md5'] : 0; //文件的md5值
+
+$size  = isset($_POST['file_size']) ?  $_POST['file_size'] : null; //文件大小
+
 echo '当前片数：'.$index.PHP_EOL;
 
 if(!$file || !$name){

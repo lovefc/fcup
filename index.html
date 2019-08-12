@@ -1,40 +1,176 @@
 <!DOCTYPE html>
-<html>
- <head> 
-  <meta charset="utf-8" /> 
-  <title>jquery文件分段上传插件-fcup</title> 
-  <!-- 引入css --> 
-  <link href="./fcup/css/style.css" rel="stylesheet" /> 
- </head> 
- <body> 
-  <div class="fcup"></div>  
-  <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script> 
-  <!--  引入js  --> 
-  <script src="./fcup/js/jquery.fcup.js"></script> 
-  <script>
-$.fcup({
-    updom: '.fcup',//上传控件的位置dom		
-	//upid: 'upid',//上传的文件表单id，有默认
-	shardsize: '2',//切片大小,(单次上传最大值)单位M，默认2M
-	upmaxsize : '1024',//上传文件大小,单位M，不设置不限制
-	upstr: '上传文件',//按钮文字
-	uploading: '上传中...',//上传中的提示文字
-    upfinished: '上传完成',//上传完成后的提示文字
-	upurl: './php/file.php',//文件上传接口 node接口:http://127.0.0.1:8888/upload
-	//uptype: 'mp4',//上传类型检测,用,号分割
-    errmaxup: '上传文件过大',//检测文件是否超出设置上传大小
-	errtype: '请上传mp4文件',//不支持类型的提示文字
-	//接口返回结果回调
-	upcallback : function(result){
-	     console.log(result);
-		 /*
-		 if (result !== 'success') {
-			$.fcupStop('出现错误');//终止运行,并且在按钮上显示内容
-		 }	
-         */		 
-		  
-	}
-});
-</script>  
- </body>
+<html lang="zh-cn">
+
+<head>
+   <meta charset="utf-8">
+   <title>fcup.js大文件切片上传插件</title>
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv="Cache-Control" content="max-age=72000" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">  
+   <meta name="keywords" content="fcup.js,大文件上传,分段上传,h5上传,jquery上传插件,切片上传" />
+   <meta name="description" content="fcup.js是一款支持大文件切片上传jquery插件，使用简单方便，功能强大" />
+   <link rel="stylesheet" href="pintuer/pintuer.css">
+   <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+   <script src="pintuer/pintuer.js"></script>
+</head>
+<style>
+   @font-face {
+      font-family: 'logo';
+      src: url('./logo.ttf');
+   }
+
+   .logo {
+      font-size: 25px;
+      font-family: "logo";
+   }
+
+   .csbg {
+      background-image: linear-gradient(to right, #eea2a2 0%, #bbc1bf 19%, #57c6e1 42%, #b49fda 79%, #7ac5d8 100%);
+   }
+</style>
+<script>
+   // 进度条
+   function Progress(value) {
+      $('#myProgress').css('width', value + '%');
+   }
+
+   function CloseDialog() {
+      $('#mydialog').hide();
+   }
+</script>
+
+<body>
+   <!-- 弹出框 -->
+   <div style="position: fixed;max-width:600px;">
+      <div class="dialog-win" id="mydialog" style="z-index: 11; top: 10px;display: none;">
+         <div class="dialog open">
+            <div class="dialog-head">
+               <span class="close rotate-hover" onclick="CloseDialog()"></span><strong>图片预览</strong>
+            </div>
+            <div class="dialog-body" style="width:100%;">
+               <img src="" id="pic" class="img-responsive" alt="响应式图片" style="width:100%"/>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="container">
+      <div class="view-body">
+         <div class="keypoint bg-blue bg-inverse radius text-center csbg">
+            <a href="https://gitee.com/lovefc/fcup" target="_blank">
+               <h1 class="logo">
+                  fcup.js
+               </h1>
+            </a>
+            <p>
+               fcup.js-简单，方便的大文件切片上传jquery插件</p>
+            <p>
+               <br />
+               <button class="button bg-main button-big icon-arrow-circle-up" id="upid">
+                  立即上传</button>
+            </p>
+         </div>
+         <div class="progress progress-small">
+            <div class="progress-bar bg-yellow" id="myProgress" style="width: 0%;">
+            </div>
+         </div>
+      </div>
+
+      <div class="view-body">
+         <div class="panel">
+            <div class="panel-head">
+               <strong>更新说明</strong>
+            </div>
+            <ul class="list-group">
+               <li> 2018/01/08 ： 添加了对于接口返回结果的回调，添加了对于上传表单id的指定</li>
+               <li> 2018/01/17 : 优化了分片异步处理,队列执行接口,修复细节 </li>
+               <li> 2018/05/02 : 添加了文件大小的判断,添加了对于文件md5的计算,添加了终止函数,传值到后台使用,优化细节部分 </li>
+               <li> 2019/05/21 ： 分离了原来的进度动画，现在用户可以自定义自己的动画和按钮，分别提供了各种回调事件以便处理 </li>
+            </ul>
+         </div>
+      </div>
+
+      <div class="container-layout">
+         <div class="border-top padding-top">
+            <div class="text-center">
+               <ul class="nav nav-inline">
+                  <li><a href="https://gitee.com/lovefc/fcup" target="_blank">获取源码</a> </li>
+                  <li><a href="default.html" target="_blank">默认样式</a> </li>
+                  <li><a href="old.html" target="_blank">旧版本样式</a> </li>
+                  <li><a href="layui.html" target="_blank">结合layui</a></li>
+                  <li><a href="bootstrap.html" target="_blank">结合bootstrap</a> </li>
+               </ul>
+            </div>
+            <div class="text-center height-big">
+               版权所有 © <a href="http://lovefc.cn" target="_blank">lovefc.cn</a> All Rights Reserved，by lovefc</div>
+         </div>
+      </div>
+   </div>
+</body>
+<!--  fcup.js  -->
+<script src="./fcup/js/jquery.fcup.js"></script>
+
+<script>
+   $.fcup({
+
+      upId: 'upid', //上传dom的id
+
+      upShardSize: '0.1', //切片大小,(单次上传最大值)单位M，默认2M
+
+      upMaxSize: '20', //上传文件大小,单位M，不设置不限制
+
+      upUrl: './php/file.php', //文件上传接口
+
+      upType: 'jpg,png,jpeg,gif', //上传类型检测,用,号分割
+
+      //接口返回结果回调，根据结果返回的数据来进行判断，可以返回字符串或者json来进行判断处理
+      upCallBack: function (res) {
+
+         // 状态
+         var status = res.status;
+         // 信息
+         var msg = res.message;
+         // url
+         var url = res.url + "?" + Math.random();
+
+         // 已经完成了
+         if (status == 2) {
+            alert(msg);
+            $('#pic').attr("src", url);
+            $('#mydialog').show();
+         }
+
+         // 还在上传中
+         if (status == 1) {
+            console.log(msg);
+         }
+
+         // 接口返回错误
+         if (status == 0) {
+            // 停止上传并且提示信息
+            $.upStop(msg);
+         }
+      },
+
+      // 上传过程监听，可以根据当前执行的进度值来改变进度条
+      upEvent: function (num) {
+         // num的值是上传的进度，从1到100
+         Progress(num);
+      },
+
+      // 发生错误后的处理
+      upStop: function (errmsg) {
+         // 这里只是简单的alert一下结果，可以使用其它的弹窗提醒插件
+         alert(errmsg);
+      },
+
+      // 开始上传前的处理和回调,比如进度条初始化等
+      upStart: function () {
+         Progress(0);
+         $('#mydialog').hide();
+         alert('开始上传');
+      }
+
+   });
+</script>
+<script type="text/javascript" src="https://js.users.51.la/19663859.js"></script>
 </html>

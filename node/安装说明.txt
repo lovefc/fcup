@@ -1,4 +1,0 @@
-### 使用该接口，需要安装以下依赖
-npm install express
-npm install connect-multiparty
-npm install md5

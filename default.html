@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+   <title>jquery文件分段上传插件-fcup.js</title>
+   <meta name="keywords" content="fcup.js,大文件上传,分段上传,h5上传,jquery上传插件,切片上传" />
+   <meta name="description" content="fcup.js是一款支持大文件切片上传jquery插件，使用简单方便，功能强大" />
+   <script type="text/javascript">
+      // 进度条
+      function Progress(value) {
+         var myProgress = document.getElementById("myProgress");
+         var mySpan = document.getElementById("mySpan");
+         mySpan.innerText = value + "%";
+         myProgress.value = value;
+      }
+   </script>
+   <style>
+      body {
+         font-family: Helvetica, 'Hiragino Sans GB', 'Microsoft Yahei', '微软雅黑', Arial, sans-serif;
+      }
+
+      a {
+         color: blue;
+      }
+   </style>
+</head>
+
+<body>
+   <div style="margin: 150px auto;text-align: center">
+      <h3>fcup.js-大文件分段上传插件</h3>
+      <br />
+      <!-- 进度条html元素 -->
+      <progress id="myProgress" value="0" max="100"></progress> <span id="mySpan">0%</span>
+
+      <!-- 上传按钮 -->
+      <button id="upid">上传文件</button><br />
+      <br />
+      <img src="" id="pic" style="width:200px;display:none">
+      <br /><br />
+      <span>
+         更多案例：
+         <a href="old.html" target="_blank">旧版本样式</a>
+         <a href="layui.html" target="_blank">结合layui</a>
+         <a href="bootstrap.html" target="_blank">结合bootstrap</a>
+      </span>
+   </div>
+   <!--  jquery  -->
+   <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+   <!--  fcup.js  -->
+   <script src="./fcup/js/jquery.fcup.js"></script>
+
+   <script>
+      $.fcup({
+
+         upId: 'upid', //上传dom的id
+
+         upShardSize: '1', //切片大小,(单次上传最大值)单位M，默认2M
+
+         upMaxSize: '2000', //上传文件大小,单位M，不设置不限制
+
+         upUrl: './php/file.php', //文件上传接口
+
+         upType: 'jpg,png,jpeg,gif', //上传类型检测,用,号分割
+
+         //接口返回结果回调，根据结果返回的数据来进行判断，可以返回字符串或者json来进行判断处理
+         upCallBack: function (res) {
+            
+            // 状态
+            var status = res.status;
+            // 信息
+            var msg = res.message;
+            // url
+            var url = res.url + "?" + Math.random();
+
+            // 已经完成了
+            if (status == 2) {
+               alert(msg);
+               $('#pic').attr("src", url);
+               $('#pic').show();
+            }
+
+            // 还在上传中
+            if (status == 1) {
+               console.log(msg);
+            }
+
+            // 接口返回错误
+            if (status == 0) {
+               // 停止上传并且提示信息
+               $.upStop(msg);
+            }
+         },
+
+         // 上传过程监听，可以根据当前执行的进度值来改变进度条
+         upEvent: function (num) {
+            // num的值是上传的进度，从1到100
+            Progress(num);
+         },
+
+         // 发生错误后的处理
+         upStop: function (errmsg) {
+            // 这里只是简单的alert一下结果，可以使用其它的弹窗提醒插件
+            alert(errmsg);
+         },
+
+         // 开始上传前的处理和回调,比如进度条初始化等
+         upStart: function () {
+            Progress(0);
+            $('#pic').hide();
+            console.log('开始上传');
+         }
+
+      });
+   </script>
+</body>
+<script type="text/javascript" src="https://js.users.51.la/19663859.js"></script>
+
+</html>

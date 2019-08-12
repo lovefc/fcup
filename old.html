@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>jquery大文件分段上传插件-fcup.js</title>
+    <meta name="keywords" content="fcup.js,大文件上传,分段上传,h5上传,jquery上传插件,切片上传" />
+    <meta name="description" content="fcup.js是一款支持大文件切片上传jquery插件，使用简单方便，功能强大" />
+    <!--  jquery  -->
+    <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <style>
+        /* 主按钮 */
+        .fcup-button {
+            display: inline-block;
+            font-size: 18px;
+            color: #fff !important;
+            text-decoration: none !important;
+            padding: 10px 40px;
+            line-height: 1;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 1px 1px #ccc;
+            border-radius: 2px;
+            background-color: #009688;
+            background-image: -webkit-linear-gradient(top, #009688, #009688);
+            background-image: -moz-linear-gradient(top, #009688, #009688);
+            background-image: linear-gradient(top, #009688, #009688);
+        }
+
+        /* 变化进度条 */
+        .fcup-button .tz-bar {
+            background-color: #51b7e6;
+            height: 3px;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            position: absolute;
+            z-index: 1;
+
+            border-radius: 0 0 2px 2px;
+
+            -webkit-transition: width 0.5s, height 0.5s;
+            -moz-transition: width 0.5s, height 0.5s;
+            transition: width 0.5s, height 0.5s;
+        }
+
+
+        .fcup-button.in-fcup,
+        .fcup-button.finished {
+            color: transparent !important;
+        }
+
+        .fcup-button.in-fcup:after,
+        .fcup-button.finished:after {
+            position: absolute;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            top: 0;
+            padding-top: inherit;
+            color: #fff !important;
+            left: 0;
+        }
+
+        .fcup-button.in-fcup:after {
+            content: attr(data-loading);
+        }
+
+        .fcup-button.finished:after {
+            content: attr(data-finished);
+        }
+
+        .fcup-button .tz-bar.background-horizontal {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .fcup-button .tz-bar.background-vertical {
+            height: 0;
+            top: 0;
+            width: 100%;
+            border-radius: 2px;
+        }
+    </style>
+      <script type="text/javascript">
+        // 这里只是一个进度条插件而已，不是主功能
+        (function (jQuery) {
+            jQuery.fn.fcupInitialize = function () {
+
+                return this.each(function () {
+
+                    var button = jQuery(this),
+                        fcup = 0;
+                    if (!jQuery.uploading) {
+                        jQuery.uploading = '上传中...';
+                    }
+                    if (!jQuery.upfinished) {
+                        jQuery.upfinished = '上传完成';
+                    }
+                    var options = jQuery.extend({
+                            loading: jQuery.uploading,
+                            finished: jQuery.upfinished
+                        },
+                        button.data());
+
+                    button.attr({
+                        'data-loading': options.loading,
+                        'data-finished': options.finished
+                    });
+                    var bar = jQuery('<span class="tz-bar background-horizontal">').appendTo(button);
+                    button.on('fcup',
+                        function (e, val, absolute, finish) {
+
+                            if (!button.hasClass('in-fcup')) {
+                                bar.show();
+                                fcup = 0;
+                                button.removeClass('finished').addClass('in-fcup');
+                            }
+                            if (absolute) {
+                                fcup = val;
+                            } else {
+                                fcup += val;
+                            }
+
+                            if (fcup >= 100) {
+                                fcup = 100;
+                            }
+
+                            if (finish) {
+
+                                button.removeClass('in-fcup').addClass('finished');
+
+                                bar.delay(500).fadeOut(function () {
+                                    button.trigger('fcup-finish');
+                                    setProgress(0);
+                                });
+
+                            }
+
+                            setProgress(fcup);
+                        });
+
+                    function setProgress(percentage) {
+                        bar.filter('.background-horizontal,.background-bar').width(percentage + '%');
+                        bar.filter('.background-vertical').height(percentage + '%');
+                    }
+
+                });
+
+            };
+
+            jQuery.fn.fcupStart = function () {
+                var button = this.first(),
+                    last_fcup = new Date().getTime();
+                if (button.hasClass('in-fcup')) {
+                    return this;
+                }
+                button.on('fcup',
+                    function () {
+                        last_fcup = new Date().getTime();
+                    });
+                var interval = window.setInterval(function () {
+
+                        if (new Date().getTime() > 2000 + last_fcup) {
+
+                            button.fcupIncrement(5);
+                        }
+
+                    },
+                    500);
+
+                button.on('fcup-finish',
+                    function () {
+                        window.clearInterval(interval);
+                    });
+
+                return button.fcupIncrement(10);
+            };
+
+            jQuery.fn.fcupFinish = function () {
+                return this.first().fcupSet(100);
+            };
+
+            jQuery.fn.fcupIncrement = function (val) {
+
+                val = val || 10;
+
+                var button = this.first();
+
+                button.trigger('fcup', [val]);
+
+                return this;
+            };
+
+            jQuery.fn.fcupSet = function (val) {
+                val = val || 10;
+
+                var finish = false;
+                if (val >= 100) {
+                    finish = true;
+                }
+
+                return this.first().trigger('fcup', [val, true, finish]);
+            };
+
+        })(jQuery);
+    </script>
+</head>
+
+<body>
+
+    <!-- 上传按钮 -->
+    <div class="fcup-button" id="upid">上传文件</div><br />
+
+    <img src="" id="pic" style="width:200px;display:none">
+
+    <!--  fcup.js  -->
+    <script src="./fcup/js/jquery.fcup.js"></script>
+
+    <script>
+        $.fcup({
+
+            upId: 'upid', //上传dom的id
+
+            upShardSize: '0.1', //切片大小,(单次上传最大值)单位M，默认2M
+
+            upMaxSize: '20', //上传文件大小,单位M，不设置不限制
+
+            upUrl: './php/file.php', //文件上传接口
+
+            upType: 'jpg,png,jpeg,gif', //上传类型检测,用,号分割
+
+            //接口返回结果回调，根据结果返回的数据来进行判断，可以返回字符串或者json来进行判断处理
+            upCallBack: function (res) {
+
+                // 状态
+                var status = res.status;
+                // 信息
+                var msg = res.message;
+                // url
+                var url = res.url + "?" + Math.random();
+
+                // 已经完成了
+                if (status == 2) {
+                    alert(msg);
+                    $('#pic').attr("src", url);
+                    $('#pic').show();
+                }
+
+                // 还在上传中
+                if (status == 1) {
+                    console.log(msg);
+                }
+
+                // 接口返回错误
+                if (status == 0) {
+                    // 停止上传并且提示信息
+                    $.upStop(msg);
+                }
+            },
+
+            // 上传过程监听，可以根据当前执行的进度值来改变进度条
+            upEvent: function (num) {
+                // num的值是上传的进度，从1到100
+                // 改变进度条的值
+                var controlButton = jQuery('.fcup-button');
+                controlButton.fcupSet(num);
+            },
+
+            // 发生错误后的处理
+            upStop: function (errmsg) {
+                // 这里只是简单的alert一下结果，可以使用其它的弹窗提醒插件
+                alert(errmsg);
+            },
+
+            // 开始上传前的处理和回调,比如进度条初始化等
+            upStart: function () {
+                // 初始化进度条插件
+                jQuery('.fcup-button').fcupInitialize();
+                $('#pic').hide();
+                alert('开始上传');
+            }
+
+        });
+    </script>
+</body>
+<script type="text/javascript" src="https://js.users.51.la/19663859.js"></script>
+
+</html>

@@ -99,14 +99,14 @@ var fcup_upload = {
         if (typeof jQuery.upStart == 'function') {
             jQuery.upStart();
         }
-        name = file.name;
+        filename = file.name;
         size = file.size;
-        index1 = name.lastIndexOf(".");
+        index1 = filename.lastIndexOf(".");
         if (!jQuery.upShardSize) {
             jQuery.upShardSize = 2;
         }
-        var index2 = name.length,
-            suffix = name.substring(index1 + 1, index2),
+        var index2 = filename.length,
+            suffix = filename.substring(index1 + 1, index2),
             shardSize = jQuery.upShardSize * 1024 * 1024,
             succeed = 0,
             shardCount = Math.ceil(size / shardSize);
@@ -133,7 +133,7 @@ var fcup_upload = {
             start = i * shardSize,
                 end = Math.min(size, start + shardSize);
             re[i]["file_data"] = file.slice(start, end);
-            re[i]["file_name"] = name;
+            re[i]["file_name"] = filename;
             re[i]["file_size"] = size; //文件大小
         }
         const URL = jQuery.upUrl;

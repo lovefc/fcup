@@ -77,6 +77,7 @@ var fcup_upload = {
         obj.style.cssText = 'position:absolute;left:' + Y + 'px;top:' + X + 'px;opacity:0;z-index:9999;width:' + W + 'px;height:' + H + 'px;';
     },
     fcup_upload: function () {
+        jQuery.upError = '';
         jQuery.fileMD5 = '';
         jQuery.tempFile = jQuery('#' + jQuery.upInputId)[0].files[0];
         var file = jQuery.tempFile;
@@ -113,7 +114,6 @@ var fcup_upload = {
         }, 100);
     },
     fcup_upload_core: function () {
-        jQuery.upError = '';
         var file = jQuery.tempFile;
         if (!file) {
             return false;

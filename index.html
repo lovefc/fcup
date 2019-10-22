@@ -146,8 +146,16 @@
 
          // 接口返回错误
          if (status == 0) {
-            // 停止上传并且提示信息
-            $.upStop(msg);
+            // 停止上传触发$.upStop函数
+            $.upErrorMsg(msg);
+         }
+         
+         // 判断是否上传过了
+         if(status == 3){
+            Progress(100);
+            $('#pic').attr("src", url);
+            $('#mydialog').show();
+            jQuery.upErrorMsg(msg);         
          }
       },
 

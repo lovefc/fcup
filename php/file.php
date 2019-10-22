@@ -27,11 +27,6 @@ $md5   = isset($_POST['file_md5']) ? $_POST['file_md5'] : 0; //文件的md5值
 
 $size  = isset($_POST['file_size']) ?  $_POST['file_size'] : null; //文件大小
 
-// 在实际使用中，用md5来给文件命名，这样可以减少冲突
-$newfile = '../upload/'.basename($name);
-
-// 文件可访问的地址
-$url = './upload/'.basename($name);
 
 //echo '总片数：'.$total.'当前片数：'.$index;
 
@@ -44,22 +39,40 @@ function jsonMsg($status,$message,$url=''){
    die();
 }
 
-// 简单的判断文件类型
-
-$info = pathinfo($name);
-
-$ext = isset($info['extension'])?$info['extension']:'';
-
-$imgarr = array('jpeg','jpg','png','gif');
-
-if(!in_array($ext,$imgarr)){
-    jsonMsg(0,'文件类型出错');
-}
-
 if(!$file || !$name){
 	jsonMsg(0,'没有文件');
 }
 
+// 简单的判断文件类型
+
+$info = pathinfo($name);
+
+// 取得文件后缀
+$ext = isset($info['extension'])?$info['extension']:'';
+
+/* 判断文件类型 */
+$imgarr = array('jpeg','jpg','png','gif');
+if(!in_array($ext,$imgarr)){
+    jsonMsg(0,'文件类型出错');
+}
+
+// 在实际使用中，用md5来给文件命名，这样可以减少冲突
+
+$file_name = $md5.'.'.$ext;
+
+$newfile = '../upload/'.$file_name;
+
+// 文件可访问的地址
+$url = './upload/'.$file_name;
+
+/** 判断是否重复上传 **/
+// 清除文件状态
+clearstatcache($newfile);
+// 文件大小一样的，说明已经上传过了
+if(is_file($newfile) && ($size == filesize($newfile))){
+   jsonMsg(3,'已经上传过了',$url);          
+}
+/** 判断是否重复上传  **/
 
 // 这里判断有没有上传的文件流
 if ($file['error'] == 0) {

@@ -6,8 +6,10 @@
  * uptime: 2018/05/02 0:36
  * uptime: 2019/05/21 17:12
  * uptime: 2019/08/12 16:05
+ * uptime: 2019/10/22 14:14 
  * 分离了原来的进度动画，现在用户可以自定义自己的动画和按钮，分别提供了各种回调事件以便处理
  * 修复了获取md5值的bug，感谢Matty的提醒
+ * 修改了终止事件循环执行的bug
  */
 var fcup_upload = {
     fcup: function (config) {
@@ -33,9 +35,12 @@ var fcup_upload = {
         }
         return true;
     },
-    upStop: function (err) {
+    upErrorMsg: function (err) {
         jQuery.upError = err;
     },
+    upStop: function (err) {
+        jQuery.upError = err;
+    },    
     upStatus: function () {
         if (jQuery.upError) {
             if (typeof jQuery.upStop == 'function') {

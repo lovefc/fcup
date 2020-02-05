@@ -1,5 +1,5 @@
 # fcup.js
-
+# 此版本已不在更新,新版本请移步至 https://gitee.com/lovefc/fcup2
 fcup.js是一款支持大文件切片上传插件。该jquery插件使用简单，配置简单明了,支持上传类型指定，支持自定义各种事件处理，完全可以用来打造属于个性的文件上传功能。
 
 ![avatar](/images/logo.jpg)
